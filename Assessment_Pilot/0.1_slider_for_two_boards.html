@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+
+    <head>
+
+        <style> 
+            body {
+                margin: 10px;
+                /*padding-top: 40px;*/
+            }
+
+        </style>
+
+    </head>
+
+
+    <body>
+        <!--
+        <canvas id="myCanvas" style="border:1px solid #000000;" width = 500px height = 300px ></canvas>
+        -->
+
+        <div style="width: 100%; overflow: hidden;">
+            <div id='jxgbox1' class='jxgbox' style='width:350px; height:300px; float:left; border: solid #1f628d 2px;'></div>        
+            <div id='jxgbox2' class='jxgbox' style='width:350px; height:300px; margin-left: 375px; border: solid #1f628d 2px;'></div> 
+        </div>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jsxgraph/0.98/jsxgraphcore.js"></script>
+        <script type='text/javascript'>
+
+            bboxlimits = [-2, 12, 12, -2];
+            //var board1 = JXG.JSXGraph.initBoard('jxgbox1', {boundingbox: bboxlimits, axis: {withlabel: true, name: "Price"}});
+            var board1 = JXG.JSXGraph.initBoard('jxgbox1', {axis:false, 
+                                                    showCopyright: false,
+                                                    showNavigation: false,
+                                                    zoom: false,
+                                                    pan: false,
+                                                    boundingbox:bboxlimits,
+                                                    grid: true
+            });
+            xaxis = board1.create('axis', [[0, 0], [12, 0]], {withLabel: true, name: "Real GDP", label: {offset: [140,-20]}});
+            yaxis = board1.create('axis', [[0, 0], [0, 12]], {withLabel: true, name: "Price", label: {offset: [-30,140]}});
+
+            //var board2 = JXG.JSXGraph.initBoard('jxgbox2', {boundingbox: bboxlimits, axis: {withlabel: true, name: "Real\nGDP"}});
+            var board2 = JXG.JSXGraph.initBoard('jxgbox2', {axis:false, 
+                                                    showCopyright: false,
+                                                    showNavigation: false,
+                                                    zoom: false,
+                                                    pan: false,
+                                                    boundingbox:bboxlimits,
+                                                    grid: true
+            });
+            xaxis = board2.create('axis', [[0, 0], [12, 0]], {withLabel: true, name: "Real GDP", label: {offset: [230,-20]}});
+            yaxis = board2.create('axis', [[0, 0], [0, 12]], {withLabel: true, name: "Price", label: {offset: [-20,230]}});
+
+            var s = board1.create('slider', [[7,10],[10,10],[-6.0,0.1,6.0]], {name:'SRAS;'}); 
+            var h = board1.create('functiongraph', [function(x){ return  Math.pow(x,1.0)+s.Value();},0.1,15], {strokeColor:'black',strokeWidth:'3'});
+            var g = board1.create('functiongraph', [function(x){ return Math.abs(10.0/x);},0.01,15], {strokeColor:'black',strokeWidth:'3'});
+
+            //var glider1 = board1.create('glider', [2.0, 1.5, g]);
+            var i = board1.create('intersection', [h, g, 0]);
+
+            // This point depends on the data in brd1.
+            var p = board2.create('point', [ 
+                        function() { return i.X();}, 
+                        function() { return i.Y(); }
+                        ],
+                        {trace: true, name:'tracer'});
+
+            // Connect brd1 and brd2.
+            board1.addChild(board2);
+
+            getInput = function(){
+                input = state;
+                console.log(JSON.stringify(input))
+                return JSON.stringify(input);
+            }
+
+            getState = function(){
+                //state = {input: JSON.parse(getinput()), y:xfield.position};
+                statestr = JSON.stringify(state);
+                // $('#msg').html('getstate ' + statestr);
+                return statestr
+            }
+
+            setState = function(statestr){
+                console.log(statestr);
+                // alert(statestr);
+                initializeVector(statestr);
+                $('#msg').html('setstate ' + statestr);
+                state = JSON.parse(statestr);
+                console.log(state);
+                initializeVector(state);
+                console.debug('State updated successfully from saved.');
+            }
+
+        </script>
+    </body>
+</html>
+

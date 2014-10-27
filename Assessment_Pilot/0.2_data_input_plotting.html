@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html>
+
+    <head>
+
+        <style> 
+            body {
+                margin: 10px;
+                /*padding-top: 40px;*/
+            }
+            /*#jxgbox1 {  
+                border:1px solid black;
+                background: url(../../images/simple_car.png);
+                background-size: contain;
+                background-repeat: no-repeat;
+                background-position: center;
+                background-size: 80% auto;
+                
+            }*/
+
+            .btn {
+                background: #3498db;
+                -webkit-border-radius: 5;
+                -moz-border-radius: 5;
+                border-radius: 5px;
+                -webkit-box-shadow: 0px 1px 3px #666666;
+                -moz-box-shadow: 0px 1px 3px #666666;
+                box-shadow: 0px 1px 3px #666666;
+                font-family: Arial;
+                color: #ffffff;
+                font-size: 15px;
+                float: right;
+                padding: 5px 10px 5px 10px;
+                margin: 4px;
+                border: solid #1f628d 2px;
+                text-decoration: none;
+                width: 180px;
+            }
+
+            .btn:hover {
+                background: #3cb0fd;
+                background-image: -webkit-linear-gradient(top, #3cb0fd, #3498db);
+                background-image: -moz-linear-gradient(top, #3cb0fd, #3498db);
+                background-image: -ms-linear-gradient(top, #3cb0fd, #3498db);
+                background-image: -o-linear-gradient(top, #3cb0fd, #3498db);
+                background-image: linear-gradient(to bottom, #3cb0fd, #3498db);
+                text-decoration: none;
+            }
+
+            .txtbox {
+                width: 170px;
+                font-family: Arial;
+                font-size: 15px;
+                float: right;
+                padding: 5px 10px 5px 10px;
+                margin: 0px;
+            }
+        </style>
+
+    </head>
+
+
+    <body>       
+        <!-- Jxg Box -->
+        <div id='jxgbox1' class='jxgbox' style='width:450px; height:450px; float:left; border: solid #1f628d 1px;'></div>        
+        <!-- Menu -->
+        <div id="menu" style="width: 200px; float: left;">
+              <ul>
+                  Data Plotting
+                  <input class="btn" type="button" value="Plot Data" onClick="plotData()">
+                  <input class="btn" type="button" value="Fit Spline (deg 5)" onClick="fitSpline()">
+                  <input class="btn" type="button" value="Fit Polynomial (deg 2)" onClick="fitPolynomial()">
+                  <br></br>
+
+                  <input class="btn" type="button" value="Clear" onClick="clearAll()">
+              </ul>
+          </div>
+
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jsxgraph/0.98/jsxgraphcore.js"></script>
+        <script type='text/javascript'>
+            var mytable = "<table id='dataEntry' cellpadding=\"4\" cellspacing=\"1\"><tbody><tr>";
+                //mytable += "<tr><td id='index'> <i>index</i> </td><td id='col1' <i>x</i> </td><td id='col2' <i>y</i> </td></tr>";
+                var cnt=1;
+                for (var i = 1; i < 31; i++) {
+                    if (i % 3 == 1 && i != 1) {
+                        mytable += "</tr><tr>";
+                    }
+                  
+                    if (i % 3 == 1) {
+                        mytable += "<td id='d"+cnt+"'> <i>d"+cnt+"</i>  </td>";
+                        cnt += 1;
+                    }
+                    else {
+                        mytable += "<td> <input> </td>";
+                    }
+                    
+                }
+
+                mytable += "</tr></tbody></table>";
+
+                document.write(mytable);
+
+
+            bboxlimits = [-1, 12, 12, -1];
+            var board = JXG.JSXGraph.initBoard('jxgbox1', {boundingbox: bboxlimits, axis:true, showCopyright:false});
+            state = {};
+            points = [];
+
+            function plotData() {
+                clearAll();
+
+                var rows = Array.prototype.slice.call(document.getElementById("dataEntry").getElementsByTagName("tr"));
+                for(r in rows) {
+                    //Read something that innerText does not generalize to Firefox - likely can simplify below
+                    var datum = {//'name':(rows[r].cells[0].innerText || rows[r].cells[0].innerHTML), 
+                                 'name':rows[r].cells[0].id,
+                                 'x':rows[r].cells[1].children[0].value, 
+                                 'y':rows[r].cells[2].children[0].value
+                             };
+                    // console.log(datum);
+                    // for (j = 0; j < rows[r].cells.length; j += 1) {
+                    //     cell = rows[r].cells[j];
+                    //     console.log(Number(cell.innerText || cell.textContent));
+                    // }
+                    
+                    //if (typeof Number(datum['y']) === "number") {}
+
+                    //NEED TO INSURE VALUES ARE NUMBERS
+
+                    console.log(typeof(datum['x']));
+                    if (datum['x'].length > 0 && datum['y'].length > 0) {
+                        var p = board.create('point',[Number(datum['x']),Number(datum['y'])],{name:datum['name'],fixed:true});
+                        points.push(p);
+                    }
+                }
+                
+                console.log(points.length);
+                
+            }
+
+
+            //Spline
+            function fitSpline() {
+                if (points.length > 1) {
+                    console.log(points);
+                    board.create('curve', JXG.Math.Numerics.bspline(points, 5),{strokeColor:'Orange', strokeWidth:2});
+                }
+            }
+            
+            // Regression Polynomial
+            function fitPolynomial() {
+                if (points.length > 1) {
+                    var regressionPolynomial = JXG.Math.Numerics.regressionPolynomial(2, points);
+                    board.create('functiongraph',[regressionPolynomial],{strokeColor:'blue', strokeWidth:2});
+                }
+            }
+
+            function clearAll() {
+                JXG.JSXGraph.freeBoard(board);
+                board = JXG.JSXGraph.initBoard('jxgbox1', {boundingbox:bboxlimits, axis:true});
+                f = null;
+                curve = null;
+                points = [];
+            }
+
+            getInput = function(){
+                input = state;
+                console.log(JSON.stringify(input))
+                return JSON.stringify(input);
+            }
+
+            getState = function(){
+                //state = {input: JSON.parse(getinput()), y:xfield.position};
+                statestr = JSON.stringify(state);
+                // $('#msg').html('getstate ' + statestr);
+                return statestr
+            }
+
+            setState = function(statestr){
+                console.log(statestr);
+                // alert(statestr);
+                initializeVector(statestr);
+                $('#msg').html('setstate ' + statestr);
+                state = JSON.parse(statestr);
+                console.log(state);
+                initializeVector(state);
+                console.debug('State updated successfully from saved.');
+            }
+
+        </script>
+    </body>
+</html>
+
