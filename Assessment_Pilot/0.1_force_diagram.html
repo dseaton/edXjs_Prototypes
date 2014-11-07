@@ -61,7 +61,7 @@
 
     <body>       
         <!-- Jxg Box -->
-        <div id='jxgbox1' class='jxgbox' style='width:500px; height:350px; float:left; border: solid #1f628d 2px; background: url(/static/0.1_arrows.html);'></div>        
+        <div id='jxgbox1' class='jxgbox' style='width:500px; height:350px; float:left; border: solid #1f628d 2px;'></div>        
         
         <!-- Menu -->
         <div id="menu" style="width: 170px; float: left;">
@@ -73,41 +73,90 @@
                   <br></br>
 
                   <input class="btn" type="button" value="Clear" onClick="clearAll()">
+                  <input class="btn" type="button" value="Console Log State" onClick="fetchState()">
               </ul>
           </div>
 
         <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jsxgraph/0.98/jsxgraphcore.js"></script>
         <script type='text/javascript'>
-            bboxlimits = [-10, 10, 10, -10];
-            var board = JXG.JSXGraph.initBoard('jxgbox1', {boundingbox: bboxlimits, axis:false, showCopyright: false});
-            state = {};
+            
+            board = initBoard();
+
+            function initBoard() {
+                bboxlimits = [-10, 10, 10, -10];
+                var board = JXG.JSXGraph.initBoard('jxgbox1', {boundingbox: bboxlimits, axis:false, showCopyright: false});
+                state = {};
+
+                N = undefined;
+                vg = undefined;
+                vf = undefined;
+
+                var im = board.create('image',["https://studio.edge.edx.org/c4x/DavidsonNext/Ann101/asset/simple_car.png", [bboxlimits[0],bboxlimits[3]], [(bboxlimits[1]-bboxlimits[0]),1.2*(bboxlimits[3]-bboxlimits[2])] ],{fixed:true});
+            
+                cm = board.create('point',[0,1.5],{size:1,fixed:true,name:'cm',withLabel:false,strokeColor:'pink',fillColor:'pink'})
+
+                return board;
+            }
 
             // Create a vector providing two points.
             function addNormal() {
-                createVector('N',[3,1],[5,5]); 
-                console.log(vN.point1.X()); 
+                vN = createVector('N',[3,1],[5,5]); 
+                // console.log(vN); 
+                //console.log(board.elementsByName.N.point1.X(),board.elementsByName.N.point1.Y())
             }
 
             function addFriction() {
-                createVector('f',[5,1],[7,5]);  
+                vf = createVector('f',[5,1],[7,5]);  
             }
 
             function addGravitational() {
-                createVector('g',[4,1],[6,5]);  
+                vg = createVector('g',[4,1],[6,5]);
+                //console.log(vg)
             }
 
             // Create a vector providing two points.
             function createVector(vName,v1,v2) {
-                var p1 = board.create('point', v1,{size:2,withLabel:false});
-                var p2 = board.create('point', v2,{size:2,name:vName});
-                var l1 = board.create('arrow', [p1, p2]); 
+                if (!board.elementsByName[vName]) {
+                    var p1 = board.create('point', v1,{size:2,withLabel:false});
+                    var p2 = board.create('point', v2,{size:2,name:vName});
+                    var l1 = board.create('arrow', [p1, p2],{name:vName}); 
+                    return l1;
+                }
             }
 
             function clearAll() {
-                JXG.JSXGraph.freeBoard(board);
-                board = JXG.JSXGraph.initBoard('jxgbox1', {boundingbox:bboxlimits, axis:false});
-                f = null;
-                curve = null;
+                board = initBoard();
+            }
+
+            function grabVectorProp(vObject) {
+                if (vObject) {
+                    var x1 = board.elementsByName[vObject.name].point1.X();
+                    var y1 = board.elementsByName[vObject.name].point1.Y();
+                    var x2 = board.elementsByName[vObject.name].point2.X();
+                    var y2 = board.elementsByName[vObject.name].point2.Y();
+                    var angle = board.elementsByName[vObject.name].getAngle();
+                    var length = board.elementsByName[vObject.name].L();
+
+                    return {'p1':[x1,y1],'p2':[x2,y2],'length':length,'angle':180.0*angle/Math.PI}
+                }
+                else {
+                    return undefined;
+                }
+            }
+
+            function fetchState() {
+                state = {};
+                state['cm'] = {'p1':[cm.X(),cm.Y()]};
+                state['N'] = grabVectorProp(vN);
+                state['g'] = grabVectorProp(vg);
+                state['f'] = grabVectorProp(vf);
+                //console.log(state);
+                
+                var url = 'state:text/json;charset=utf8,' + encodeURIComponent(state);
+                window.open(url, '_blank');
+                window.focus();
+
+                return state;
             }
 
             getInput = function(){
