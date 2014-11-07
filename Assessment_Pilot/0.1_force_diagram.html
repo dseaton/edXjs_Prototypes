@@ -99,87 +99,95 @@
             }
 
             // Create a vector providing two points.
-            function addNormal() {
+            addNormal = function() {
                 vN = createVector('N',[3,1],[5,5]); 
                 // console.log(vN); 
                 //console.log(board.elementsByName.N.point1.X(),board.elementsByName.N.point1.Y())
             }
 
-            function addFriction() {
+            addFriction = function() {
                 vf = createVector('f',[5,1],[7,5]);  
             }
 
-            function addGravitational() {
+            addGravitational = function() {
                 vg = createVector('g',[4,1],[6,5]);
                 //console.log(vg)
             }
 
             // Create a vector providing two points.
-            function createVector(vName,v1,v2) {
+            createVector = function(vName,v1,v2) {
                 if (!board.elementsByName[vName]) {
-                    var p1 = board.create('point', v1,{size:2,withLabel:false});
-                    var p2 = board.create('point', v2,{size:2,name:vName});
-                    var l1 = board.create('arrow', [p1, p2],{name:vName}); 
+                    var tail = board.create('point', v1,{size:1,withLabel:false});
+                    var tip = board.create('point', v2,{size:2,name:vName});
+                    var l1 = board.create('arrow', [tail, tip],{name:vName}); 
                     return l1;
                 }
             }
 
-            function clearAll() {
+            clearAll = function() {
                 board = initBoard();
             }
 
-            function grabVectorProp(vObject) {
+            grabVectorProp = function(vObject) {
                 if (vObject) {
                     var x1 = board.elementsByName[vObject.name].point1.X();
                     var y1 = board.elementsByName[vObject.name].point1.Y();
                     var x2 = board.elementsByName[vObject.name].point2.X();
                     var y2 = board.elementsByName[vObject.name].point2.Y();
                     var angle = board.elementsByName[vObject.name].getAngle();
+                    angle = 180.0*angle/Math.PI;
+                    if (angle < 0) {
+                        angle = 360.0 + angle;
+                    }
                     var length = board.elementsByName[vObject.name].L();
 
-                    return {'p1':[x1,y1],'p2':[x2,y2],'length':length,'angle':180.0*angle/Math.PI}
+                    return {'name':vObject.name,'tail':[x1,y1],'tip':[x2,y2],'length':length,'angle':angle}
                 }
                 else {
                     return undefined;
                 }
             }
 
-            function fetchState() {
-                state = {};
-                state['cm'] = {'p1':[cm.X(),cm.Y()]};
-                state['N'] = grabVectorProp(vN);
-                state['g'] = grabVectorProp(vg);
-                state['f'] = grabVectorProp(vf);
-                //console.log(state);
+            fetchState = function() {
+                input = {};
+                input['cm'] = {'p1':[cm.X(),cm.Y()]};
+                input['N'] = grabVectorProp(vN);
+                input['g'] = grabVectorProp(vg);
+                input['f'] = grabVectorProp(vf);
+                console.log(input);
                 
-                var url = 'state:text/json;charset=utf8,' + encodeURIComponent(state);
-                window.open(url, '_blank');
-                window.focus();
-
-                return state;
+                return input;
             }
 
             getInput = function(){
-                input = state;
-                console.log(JSON.stringify(input))
-                return JSON.stringify(input);
+                return JSON.stringify(fetchState());
             }
 
             getState = function(){
                 //state = {input: JSON.parse(getinput()), y:xfield.position};
+                state = {input: JSON.parse(getInput())}
                 statestr = JSON.stringify(state);
                 // $('#msg').html('getstate ' + statestr);
                 return statestr
             }
 
             setState = function(statestr){
-                console.log(statestr);
-                // alert(statestr);
-                initializeVector(statestr);
-                $('#msg').html('setstate ' + statestr);
                 state = JSON.parse(statestr);
-                console.log(state);
-                initializeVector(state);
+                console.log(state); 
+                input = state.input
+                //addNormal();
+                if (input['N']) {
+                    vN = createVector('N',input['N']['tail'],input['N']['tip']);
+                }
+                if (input['g']) {
+                    vg = createVector('g',input['g']['tail'],input['g']['tip']);
+                }
+                if (input['f']) {
+                    vf = createVector('f',input['f']['tail'],input['f']['tip']);
+                }
+                board.update()
+                
+                //alert(statestr);
                 console.debug('State updated successfully from saved.');
             }
 
