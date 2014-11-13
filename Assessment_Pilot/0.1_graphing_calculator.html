@@ -51,20 +51,21 @@
             <div id="menu" style="width: 170px; float: left;">
                 <ul>
                     <input class="txtbox" type="text" id="inputF" placeholder="Type a function f(x)" value="x^3+x^2-6*x" font-size: "10px">
-                    <input class="btn" type="button" value="plot" onClick="plotter()">
-                    <input class="btn" type="button" value="clear all" onClick="clearAll()">
+                    <input class="btn" type="button" value="Plot" onClick="plotter()">
                     <!--
                     <input class="btn" type="button" value="add tangent" onClick="addTangent()">
                     -->
-                    <input class="btn" type="button" value="add Derivative" onClick="plotDerivative()">
-                  
-                    <br></br>
+                    <input class="btn" type="button" value="Add Derivative" onClick="plotDerivative()">
+                    <input class="btn" type="button" value="Clear All" onClick="clearAll()">
+                </ul>
+                <br></br>
+                <ul>
                     <input class="txtbox" type="text" id="inputZstart" placeholder="Start value for zero search" font-size: "6">
                     <input class="btn" type="button" value="find Zero" onClick="findZeroes()">
 
                 </ul>
             </div>
-            <div id='jxgbox' class='jxgbox' style='width:550px; height:500px; margin-left: 180px; border: solid #1f628d 1px;'></div>        
+            <div id='jxgbox' class='jxgbox' style='width:650px; height:600px; margin-left: 180px; border: solid #1f628d 1px;'></div>        
 
         <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
         <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jsxgraph/0.98/jsxgraphcore.js"></script>
@@ -147,8 +148,8 @@
             }
 
 
-            function findDerivative() {
-                var zeroraw = document.getElementById('inputZstart').value;
+            function findNumDerivative() {
+                var zeroraw = document.getElementById('inputNumDerivative').value;
                 if (JXG.isFunction(f) && isNumeric(zeroraw)) {
                     board.suspendUpdate();
                     var zero = JXG.Math.Numerics.fzero(f,parseFloat(zeroraw));
