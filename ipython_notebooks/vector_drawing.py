@@ -9,7 +9,8 @@
 # <codecell>
 
 %%javascript
-require.config({paths: {jsx: "https://paper.js"}});
+//require.config({paths: {jsx: "http://paper.js"}});
+require.config({paths: {jsx: "/Users/dseaton/Dropbox/Davidson/Interactives/Physics/Vectors/paper-full.js"}});
 require(["paper"], function(paper) {
         
         var values = {
@@ -262,6 +263,12 @@ require(["paper"], function(paper) {
         }
     
 });
+
+# <codecell>
+
+
+# <codecell>
+
 
 # <codecell>
 

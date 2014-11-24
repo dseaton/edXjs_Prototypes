@@ -1,28 +1,22 @@
+%%html
 <!DOCTYPE html>
 <html>
-
     <head>
-
         <style> 
             body {
                 margin: 10px;
                 /*padding-top: 40px;*/
             }
-
         </style>
-
     </head>
 
-
     <body>
-        <!--
-        <canvas id="myCanvas" style="border:1px solid #000000;" width = 500px height = 300px ></canvas>
-        -->
-
+        
         <div style="width: 100%; overflow: hidden;">
-            <div id='jxgbox1' class='jxgbox' style='width:750px; height:600px; float:left; border: solid #1f628d 2px;'></div>        
+            <div id='jxgbox1' class='jxgbox' style='width:350px; height:350px; float:left; border: solid #1f628d 2px;'></div>
         </div>
-        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jsxgraph/0.98/jsxgraphcore.js"></script>
+        
+        <script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/jsxgraph/0.98/jsxgraphcore.js"></script>
         <script type='text/javascript'>
 
             bboxlimits = [-1.1, 12, 12, -1.1];
@@ -30,22 +24,27 @@
             var board = JXG.JSXGraph.initBoard('jxgbox1', {axis:false, 
                                                     showCopyright: false,
                                                     showNavigation: false,
-                                                    zoom: true,
-                                                    pan: true,
+                                                    zoom: false,
+                                                    pan: false,
                                                     boundingbox:bboxlimits,
                                                     grid: true
             });
             xaxis = board.create('axis', [[0, 0], [12, 0]], {withLabel: true, name: "Real GDP", label: {offset: [320,-20]}});
             yaxis = board.create('axis', [[0, 0], [0, 12]], {withLabel: true, name: "Price Level", label: {offset: [-60,260]}});
 
-            var s = board.create('slider', [[10,6],[10,9],[-6.0,0.0,6.0]], {name:'SRAS;'}); 
-            var f1 = board.create('functiongraph', [function(x){ return  Math.pow(x,1.0)},0.1,15], {strokeColor:'gray',strokeWidth:'1',dash:'1'});
-            var f1 = board.create('functiongraph', [function(x){ return  Math.pow(x,1.0)+s.Value();},0.1,15], {strokeColor:'black',strokeWidth:'3',name:'AD'});
+            //var f1 = board.create('functiongraph', [function(x){ return  Math.pow(x,1.0)},0.1,15], {strokeColor:'gray',strokeWidth:'1',dash:'1'});
+            //var f1 = board.create('functiongraph', [function(x){ return  Math.pow(x,1.0)},0.1,15], {strokeColor:'black',strokeWidth:'3',name:'AD'});
+
+            var p1 = board.create('point',[-2.0,-2.0],{withLabel:false});
+            var p2 = board.create('point',[12.0,12.0],{withLabel:false});
+            var line1 = board.create('line',[p1,p2],{strokeColor:'black',strokeWidth:'3',name:'AD',withLabel:false});
+            var line2 = board.create('line',[[0.0,0.0],[12.0,12.0]],{strokeColor:'gray',strokeWidth:'1',dash:'1',fixed:true});
+
 
             var f2 = board.create('functiongraph', [function(x){ return Math.abs(10.0/x);},0.01,15], {strokeColor:'black',strokeWidth:'3',name:'SRAS'});
 
             //var glider1 = board1.create('glider', [2.0, 1.5, g]);
-            var i = board.create('intersection', [f1, f2, 0], {withLabel:false,strokeColor:'blue'});
+            var i = board.create('intersection', [line1, f2, 0], {withLabel:false,strokeColor:'blue'});
 
 
             getInput = function(){
@@ -75,4 +74,3 @@
         </script>
     </body>
 </html>
-
