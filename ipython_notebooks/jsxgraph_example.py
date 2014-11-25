@@ -8,16 +8,58 @@ from IPython.display import HTML
 # <markdowncell>
 
 # ### HTML
-# JSinput offers perhaps the most intriguing problem type in the edX system; endless freedom to adapt javascript visualizations for graded assessment. However, it consists of one of the most challenging assessment creation workflows in edX. JSinput problems involve HTML, Javascript, and CSS, all graded within a custom response Python script. 
+# JSinput offers perhaps the most intriguing assessment type available in the edX system; the endless creative freedom of javascript visualizations combined with graded assessment. However, JSinput consists of one of the most challenging assessment creation workflows in edX. Graded assessment involve HTML, Javascript, and CSS, all of which leads to a JSON "state" passed to a custom response grading script written in Python. 
+# 
+# iPython notebooks provide a sensible approach to stream lining the JSinput workflow. They provide an HTML/JS/CSS interface with the luxury of python interactions. HTML/JS/CSS is written within an HTML cell, from which, the associated "state" of a given interactive can be passed to Python - the native language of an iPython notebook.
 # 
 # _Discuss studio workflow_: HTML/JS edited outside the system. Once integrated, all python grading takes place within a rudimentary modal window.
 # 
 # #### Insert image for JSinput workflow via studio
 # 
+# #### Insert image for iPython notebook workflow and incorporation with Studio
+# 
+# ### Hopes for the future
+# The iPython workflow is a small step toward improving the current JSinput workflow. Our hope is that these examples will inspire dialogue on improving the interface, as well as providing broader training to instructors and course teams that lack a background in HTML, CSS, Javascript, and Python.
+#  
+
+# <markdowncell>
+
+# #Simple HTML example
+# Below is a simple example of writing HTML within an iPython Notebook. Three key features:
+# 
+# * %%HTML - the '%%' signal [_cell magic_](http://ipython.org/ipython-doc/2/interactive/reference.html#magic-command-system), which in this case, registers all cell input as HTML.
+# * See "style" blocks - this is where we add some rudimentary CSS styling. Go ahead, try adjusting the font size seen in the output below the cell.
+# * See "body" blocks - this is where we write HTML to be displayed. It will also be where our Javascript lives in most examples.
 
 # <codecell>
 
 %%html
+<!DOCTYPE html>
+<html>
+    <head>
+        <style>
+            test {
+                font-size: 250%;
+                color: Orange;
+            }
+        </style>
+    </head>
+    <body>
+        <test>Hey you - world!</test>
+    </body>
+</html>
+
+# <markdowncell>
+
+# #Interactive Graphs using JSXgraph
+# Now we jump into an interactive graphing example. You can read more about JSXgraph [here](http://ipython.org/ipython-doc/2/interactive/reference.html#magic-command-system).
+# 
+# 
+
+# <codecell>
+
+%%html
+
 <!DOCTYPE html>
 <html>
     <head>
@@ -30,17 +72,19 @@ from IPython.display import HTML
     </head>
 
     <body>
-        
+        <!-- COMMENT: Define the jxgbox - aka, where all the interactive graphing will go. -->
         <div style="width: 100%; overflow: hidden;">
             <div id='jxgbox1' class='jxgbox' style='width:350px; height:350px; float:left; border: solid #1f628d 2px;'></div>
         </div>
         
+        <!-- COMMENT: Buttons below are used to add debugging features to an interactive. Conole logging allows you to see
+            output within a browser's console. Try reading about Chrome's console. -->
         <input class="btn" type="button" value="Console Log State" onClick="logState()">
         <input class="btn" type="button" value="Pass State" onClick="passState()">
-        
         <div id="spaceBelow">State:</div>
 
         
+        <!-- COMMENT: Where our Javascript begins. -->
         <script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/jsxgraph/0.98/jsxgraphcore.js"></script>
         <script type='text/javascript'>
 
@@ -60,31 +104,30 @@ from IPython.display import HTML
             //var f1 = board.create('functiongraph', [function(x){ return  Math.pow(x,1.0)},0.1,15], {strokeColor:'gray',strokeWidth:'1',dash:'1'});
             //var f1 = board.create('functiongraph', [function(x){ return  Math.pow(x,1.0)},0.1,15], {strokeColor:'black',strokeWidth:'3',name:'AD'});
 
-            var p1 = board.create('point',[-2.0,-2.0],{withLabel:false});
-            var p2 = board.create('point',[12.0,12.0],{withLabel:false});
-            var line1 = board.create('line',[p1,p2],{strokeColor:'black',strokeWidth:'3',name:'AD',withLabel:false});
-            var line2 = board.create('line',[[0.0,0.0],[12.0,12.0]],{strokeColor:'gray',strokeWidth:'1',dash:'1',fixed:true});
-
+            var c1 = [0.0,0.0];
+            var c2 = [12.0,12.0];
+            //var p1 = board.create('point',c1,{withLabel:false, visible:false});
+            //var p2 = board.create('point',c2,{withLabel:false, visible:false});
+            var line1 = board.create('line',[c1,c2],{strokeColor:'gray',strokeWidth:'2',dash:'1',fixed:true});
+            var line2 = board.create('line',[c1,c2],{strokeColor:'black',strokeWidth:'3',name:'AD',withLabel:false});
 
             var f2 = board.create('functiongraph', [function(x){ return Math.abs(10.0/x);},0.01,15], {strokeColor:'black',strokeWidth:'3',name:'SRAS'});
 
-            //var glider1 = board1.create('glider', [2.0, 1.5, g]);
-            //var i = board.create('intersection', [line1, f2, 0], {withLabel:false,strokeColor:'blue'});
-
             var kernel = IPython.notebook.kernel;
-            
-            //console.log(state);
-            //kernel.execute(state);
 
             logState = function() {
-                var state = {'y1':line1.point1.Y(),'y2':line1.point2.Y()};
+                var state = {'line1':{'p1':line1.point1.Y(),'p2':line1.point2.Y()},
+                             'line2':{'p1':line2.point1.Y(),'p2':line2.point2.Y()}
+                             };
                 statestr = JSON.stringify(state);
                 console.log(state);
                 return statestr
             }
             
             passState = function(){
-                var state = {'y1':line1.point1.Y(),'y2':line1.point2.Y()};
+                var state = {'line1':{'p1':line1.point1.Y(),'p2':line1.point2.Y()},
+                             'line2':{'p1':line2.point1.Y(),'p2':line2.point2.Y()}
+                             };
                 statestr = JSON.stringify(state);
                 //document.write(statestr);
                 document.getElementById('spaceBelow').innerHTML += '<br>'+statestr;
@@ -113,10 +156,25 @@ from IPython.display import HTML
 
 # <codecell>
 
-import json
-ans = json.loads(state)
+def overallGrader(e, ans):
+    return {'ok': True, 'msg': 'Good job!'}
 
-class curveGrader:
+import json
+answer = json.loads(state)
+
+class gradeCurves:
+    def __init__(self):
+        return None
+
+    def checkVerticalPositions(self,point2,point1):
+#         print point2 - point1
+        return point2 - point1
+        
+if (gradeCurves().checkVerticalPositions(answer['line2']['p1'],answer['line1']['p1']) > 0.5 and 
+    gradeCurves().checkVerticalPositions(answer['line2']['p2'],answer['line1']['p2']) > 0.5):
+    print {'ok': True, 'msg': 'Good job.'}
+else:
+    print {'ok': False, 'msg': 'Something wrong.'}
 
 # <codecell>
 
