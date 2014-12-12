@@ -34,13 +34,13 @@ from IPython.display import HTML
         </div>
         
         
-        
+        <!--START-BUTTON FOR PASS STATE-->
         <!-- COMMENT: Buttons below are used to add debugging features to an interactive. Conole logging allows you to see
             output within a browser's console. Try reading about Chrome's console. -->
         
         <input class="btn" type="button" value="Pass State for Grading" onClick="passState()">
         <div id="spaceBelow">State:</div>
-
+        <!--END-BUTTON FOR PASS STATE-->
         
         <!-- COMMENT: Where our Javascript begins. -->
         <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jsxgraph/0.98/jsxgraphcore.js"></script>
@@ -116,7 +116,7 @@ from IPython.display import HTML
             
             //Grading Functions
             
-            //START-SPECIFIC TO IPYTHON WORKFLOW
+            //START-PASS STATE TO IPYTHON KERNEL
             passState = function(){
                 var state = {'f1':f1.getAttribute('strokeColor'),'f2':f2. getAttribute('strokeColor')};
                 statestr = JSON.stringify(state);
@@ -129,7 +129,8 @@ from IPython.display import HTML
 
                 return statestr
             }
-            //END-SPECIFIC TO IPYTHON WORKFLOW
+                
+            //END-PASS STATE TO IPYTHON KERNEL
             
             function set_value(){
                 var var_value = state;
@@ -145,14 +146,23 @@ from IPython.display import HTML
     </body>
 </html>
 
+# <markdowncell>
+
+# ### Save HTML file
+# Removes any IPython Notebook specific functions
+
 # <codecell>
 
-#%%writefile 'macro_fiscal_policy.html' _i22 
-tmpfile = _i53
+# def findHTMLInputCell(**kwargs):
+#     specify
+
+tmpfile = _i88
 tmpfile = re.sub('%%HTML','',tmpfile)
-tmpfile = re.sub(r'//START-SPECIFIC TO IPYTHON WORKFLOW(.*?)//END-SPECIFIC TO IPYTHON WORKFLOW','',s,flags=re.DOTALL)
+tmpfile = re.sub(r'<!--START-BUTTON FOR PASS STATE(.*?)END-BUTTON FOR PASS STATE-->','',tmpfile,flags=re.DOTALL)
+tmpfile = re.sub(r'//START-PASS STATE TO IPYTHON KERNEL(.*?)//END-PASS STATE TO IPYTHON KERNEL','',tmpfile,flags=re.DOTALL)
 with open('macro_fiscal_policy.html','w') as hfile:
     hfile.write(tmpfile)
+print tmpfile
 
 # <codecell>
 
@@ -169,29 +179,48 @@ else:
 
 # <codecell>
 
-s = '''
-
-//Grading Functions
-
-            //START-SPECIFIC TO IPYTHON WORKFLOW
-            passState = function(){
-                var state = {'f1':f1.getAttribute('strokeColor'),'f2':f2. getAttribute('strokeColor')};
-                statestr = JSON.stringify(state);
-                document.getElementById('spaceBelow').innerHTML += '<br>'+statestr;
-                var command = "state = '" + statestr + "'";
-                console.log(command);
-
-                var kernel = IPython.notebook.kernel;
-                kernel.execute(command);
-
-                return statestr
-            }
-            //END-SPECIFIC TO IPYTHON WORKFLOW
-
-            function set_value(){
-            
 '''
-print re.sub(r'//START-SPECIFIC TO IPYTHON WORKFLOW(.*?)//END-SPECIFIC TO IPYTHON WORKFLOW','',s,flags=re.DOTALL)
+<problem display_name="webGLDemo">
+<script type="loncapa/python">
+<![CDATA[
+import json
+
+def dist1D(xf,xi):
+    #print xf,xi,xf-xi
+    return xf-xi
+
+def vglcfn(e, ans):
+    answer = json.loads(json.loads(ans)['answer'])
+    #return {'ok': False, 'msg': '%s' % str(answer)}
+
+    delta = dist1D(answer['dragLine']['p1Y'],answer['staticLine']['p1Y'])
+    if delta < 0:
+        if abs(delta) > 0.5:
+            return {'ok': True, 'msg': 'Good job.'}
+    elif delta < 0:
+        return {'ok': False, 'msg': 'Please rethink your solution - explanation.'}
+    else:
+        return {'ok': False, 'msg': 'Something wrong.'}
+
+]]>
+</script>
+  
+<p>
+Text of the question goes here. Feel free to make it fancier.
+</p>
+  
+<customresponse cfn="vglcfn">
+  <jsinput gradefn="getInput"
+    get_statefn="getState"
+    set_statefn="setState"
+    initial_state='{}'
+    width="500"
+    height="400"
+    html_file="/static/LC1_HandsOnAct.html"
+    sop="true"/>
+</customresponse>
+</problem>
+'''
 
 # <codecell>
 

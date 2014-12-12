@@ -17,12 +17,8 @@
             <div id='jxgbox1' class='jxgbox' style='width:450px; height:350px; float:left; border: solid #1f628d 2px;'></div>
         </div>
         
-        <!-- COMMENT: Buttons below are used to add debugging features to an interactive. Conole logging allows you to see
-            output within a browser's console. Try reading about Chrome's console. -->
         
-        <input class="btn" type="button" value="Pass State for Grading" onClick="passState()">
-        <div id="spaceBelow">State:</div>
-
+        
         
         <!-- COMMENT: Where our Javascript begins. -->
         <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jsxgraph/0.98/jsxgraphcore.js"></script>
@@ -98,20 +94,7 @@
             
             //Grading Functions
             
-            //START-SPECIFIC TO IPYTHON WORKFLOW
-            passState = function(){
-                var state = {'f1':f1.getAttribute('strokeColor'),'f2':f2. getAttribute('strokeColor')};
-                statestr = JSON.stringify(state);
-                document.getElementById('spaceBelow').innerHTML += '<br>'+statestr;
-                var command = "state = '" + statestr + "'";
-                console.log(command);
-
-                var kernel = IPython.notebook.kernel;
-                kernel.execute(command);
-
-                return statestr
-            }
-            //END-SPECIFIC TO IPYTHON WORKFLOW
+            
             
             function set_value(){
                 var var_value = state;
