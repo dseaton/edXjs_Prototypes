@@ -95,7 +95,6 @@ from IPython.display import HTML
                                                                            dash:'1',fixed:true}
                                   );
         
-            var kernel = IPython.notebook.kernel;
             
             f1.on('down', function () {
                 resetColors(f1);
@@ -132,14 +131,31 @@ from IPython.display import HTML
                 
             //END-PASS STATE TO IPYTHON KERNEL
             
-            function set_value(){
-                var var_value = state;
-                console.log(var_value);
-                var command = "state = '" + var_value + "'";
-                console.log("Executing Command: " + command);
+            //Standard edX JSinput functions
+            getInput = function(){
+                var state = {'f1':f1.getAttribute('strokeColor'),'f2':f2. getAttribute('strokeColor')};
+                statestr = JSON.stringify(state);
+                //console.log(statestr);
+                return statestr;
+            }
 
-                var kernel = IPython.notebook.kernel;
-                kernel.execute(command);
+            getState = function(){
+                state = JSON.parse(getInput());
+                statestr = JSON.stringify(state);
+                // console.log(statestr);
+                return statestr;
+            }
+
+            setState = function(statestr){
+                state = JSON.parse(statestr);
+
+                if (state["f1"]) {
+                    f1.setAttribute({strokeColor: state["f1"],strokeWidth: 4});
+                    f2.setAttribute({strokeColor: state["f2"],strokeWidth: 4});
+                    board.update();
+                }
+                //alert(statestr);
+                console.debug('State updated successfully from saved.');
             }
             
         </script>
@@ -153,54 +169,57 @@ from IPython.display import HTML
 
 # <codecell>
 
+###PYTHON GRADER
+import json
+
+def overallGrader(e, ans):
+    answer = json.loads(ans)
+
+    if answer['f1'] == 'red' and answer['f2'] == 'DarkGrey':
+        return {'ok': True, 'msg': 'Good job.'}
+    else:
+        return {'ok': False, 'msg': 'Something wrong.'}
+
+print overallGrader('',state)
+
+# <codecell>
+
 # def findHTMLInputCell(**kwargs):
 #     specify
 
-tmpfile = _i88
+### Currently have to use the input ?variables from iPython (little blue numbers next to each cell) 
+### - you can look at the list by type _i and hitting tab. _ih contains all the current input.
+
+import re
+
+tmpfile = _i15
 tmpfile = re.sub('%%HTML','',tmpfile)
 tmpfile = re.sub(r'<!--START-BUTTON FOR PASS STATE(.*?)END-BUTTON FOR PASS STATE-->','',tmpfile,flags=re.DOTALL)
 tmpfile = re.sub(r'//START-PASS STATE TO IPYTHON KERNEL(.*?)//END-PASS STATE TO IPYTHON KERNEL','',tmpfile,flags=re.DOTALL)
-with open('macro_fiscal_policy.html','w') as hfile:
+
+filename = 'macro_fiscal_policy'
+html_filename = '%s.html' % filename
+
+with open(html_filename,'w') as hfile:
     hfile.write(tmpfile)
-print tmpfile
+#print tmpfile
 
 # <codecell>
 
-def overallGrader(e, ans):
-    return {'ok': True, 'msg': 'Good job!'}
+from string import Template
+variables = {
+    "PYTHON_GRADER": re.sub('print overallGrader('',state)','', _i17, flags=re.DOTALL),
+    "HEIGHT":500,
+    "WIDTH":450,
+    "HTML_FILE":"/static/%s" % (html_filename),
+}
 
-import json
-answer = json.loads(state)
-    
-if answer['f1'] == 'red' and answer['f2'] == 'DarkGrey':
-    print {'ok': True, 'msg': 'Good job.'}
-else:
-    print {'ok': False, 'msg': 'Something wrong.'}
-
-# <codecell>
-
-'''
+problem = Template('''
 <problem display_name="webGLDemo">
 <script type="loncapa/python">
 <![CDATA[
-import json
 
-def dist1D(xf,xi):
-    #print xf,xi,xf-xi
-    return xf-xi
-
-def vglcfn(e, ans):
-    answer = json.loads(json.loads(ans)['answer'])
-    #return {'ok': False, 'msg': '%s' % str(answer)}
-
-    delta = dist1D(answer['dragLine']['p1Y'],answer['staticLine']['p1Y'])
-    if delta < 0:
-        if abs(delta) > 0.5:
-            return {'ok': True, 'msg': 'Good job.'}
-    elif delta < 0:
-        return {'ok': False, 'msg': 'Please rethink your solution - explanation.'}
-    else:
-        return {'ok': False, 'msg': 'Something wrong.'}
+$PYTHON_GRADER
 
 ]]>
 </script>
@@ -209,18 +228,26 @@ def vglcfn(e, ans):
 Text of the question goes here. Feel free to make it fancier.
 </p>
   
-<customresponse cfn="vglcfn">
+<customresponse cfn="overallGrader">
   <jsinput gradefn="getInput"
     get_statefn="getState"
     set_statefn="setState"
     initial_state='{}'
-    width="500"
-    height="400"
-    html_file="/static/LC1_HandsOnAct.html"
+    width="$WIDTH"
+    height="$HEIGHT"
+    html_file="$HTML_FILE"
     sop="true"/>
 </customresponse>
 </problem>
-'''
+''')
+
+problem = problem.substitute(variables)
+
+problem_filename = '%s.problem' % filename
+
+with open(problem_filename,'w') as pfile:
+    pfile.write(problem)
+#print tmpfile
 
 # <codecell>
 

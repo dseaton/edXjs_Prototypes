@@ -73,7 +73,6 @@
                                                                            dash:'1',fixed:true}
                                   );
         
-            var kernel = IPython.notebook.kernel;
             
             f1.on('down', function () {
                 resetColors(f1);
@@ -96,14 +95,31 @@
             
             
             
-            function set_value(){
-                var var_value = state;
-                console.log(var_value);
-                var command = "state = '" + var_value + "'";
-                console.log("Executing Command: " + command);
+            //Standard edX JSinput functions
+            getInput = function(){
+                var state = {'f1':f1.getAttribute('strokeColor'),'f2':f2. getAttribute('strokeColor')};
+                statestr = JSON.stringify(state);
+                //console.log(statestr);
+                return statestr;
+            }
 
-                var kernel = IPython.notebook.kernel;
-                kernel.execute(command);
+            getState = function(){
+                state = JSON.parse(getInput());
+                statestr = JSON.stringify(state);
+                // console.log(statestr);
+                return statestr;
+            }
+
+            setState = function(statestr){
+                state = JSON.parse(statestr);
+
+                if (state["f1"]) {
+                    f1.setAttribute({strokeColor: state["f1"],strokeWidth: 4});
+                    f2.setAttribute({strokeColor: state["f2"],strokeWidth: 4});
+                    board.update();
+                }
+                //alert(statestr);
+                console.debug('State updated successfully from saved.');
             }
             
         </script>
